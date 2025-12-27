@@ -218,50 +218,56 @@ struct ContentView: View {
         @Bindable var vm = viewModel
         
         NavigationSplitView {
-            List(selection: $vm.currentPage) {
-                Section {
-                    // Always visible
-                    Label("nav.dashboard".localized(), systemImage: "gauge.with.dots.needle.33percent")
-                        .tag(NavigationPage.dashboard)
-                    
-                    Label("nav.quota".localized(), systemImage: "chart.bar.fill")
-                        .tag(NavigationPage.quota)
-                    
-                    Label(modeManager.isQuotaOnlyMode ? "nav.accounts".localized() : "nav.providers".localized(), 
-                          systemImage: "person.2.badge.key")
-                        .tag(NavigationPage.providers)
-                    
-                    // Full mode only
-                    if modeManager.isFullMode {
-                        Label("nav.agents".localized(), systemImage: "terminal")
-                            .tag(NavigationPage.agents)
+            VStack(spacing: 0) {
+                List(selection: $vm.currentPage) {
+                    Section {
+                        // Always visible
+                        Label("nav.dashboard".localized(), systemImage: "gauge.with.dots.needle.33percent")
+                            .tag(NavigationPage.dashboard)
                         
-                        Label("nav.apiKeys".localized(), systemImage: "key.horizontal")
-                            .tag(NavigationPage.apiKeys)
+                        Label("nav.quota".localized(), systemImage: "chart.bar.fill")
+                            .tag(NavigationPage.quota)
                         
-                        if loggingToFile {
-                            Label("nav.logs".localized(), systemImage: "doc.text")
-                                .tag(NavigationPage.logs)
+                        Label(modeManager.isQuotaOnlyMode ? "nav.accounts".localized() : "nav.providers".localized(), 
+                              systemImage: "person.2.badge.key")
+                            .tag(NavigationPage.providers)
+                        
+                        // Full mode only
+                        if modeManager.isFullMode {
+                            Label("nav.agents".localized(), systemImage: "terminal")
+                                .tag(NavigationPage.agents)
+                            
+                            Label("nav.apiKeys".localized(), systemImage: "key.horizontal")
+                                .tag(NavigationPage.apiKeys)
+                            
+                            if loggingToFile {
+                                Label("nav.logs".localized(), systemImage: "doc.text")
+                                    .tag(NavigationPage.logs)
+                            }
                         }
+                        
+                        Label("nav.settings".localized(), systemImage: "gearshape")
+                            .tag(NavigationPage.settings)
+                        
+                        Label("nav.about".localized(), systemImage: "info.circle")
+                            .tag(NavigationPage.about)
                     }
-                    
-                    Label("nav.settings".localized(), systemImage: "gearshape")
-                        .tag(NavigationPage.settings)
-                    
-                    Label("nav.about".localized(), systemImage: "info.circle")
-                        .tag(NavigationPage.about)
                 }
                 
-                // Status section - different per mode
-                Section {
-                    if modeManager.isFullMode {
-                        // Full mode: Show proxy status
-                        ProxyStatusRow(viewModel: viewModel)
-                    } else {
-                        // Quota-only mode: Show last refresh time
-                        QuotaRefreshStatusRow(viewModel: viewModel)
+                // Status section at bottom - different per mode
+                VStack(spacing: 0) {
+                    Divider()
+                    Group {
+                        if modeManager.isFullMode {
+                            ProxyStatusRow(viewModel: viewModel)
+                        } else {
+                            QuotaRefreshStatusRow(viewModel: viewModel)
+                        }
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
                 }
+                .background(.regularMaterial)
             }
             .navigationTitle("Quotio")
             .toolbar {
@@ -342,7 +348,7 @@ struct ProxyStatusRow: View {
             
             Spacer()
             
-            Text(":\(viewModel.proxyManager.port)")
+            Text(":" + String(viewModel.proxyManager.port))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
